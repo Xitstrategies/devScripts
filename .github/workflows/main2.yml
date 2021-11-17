@@ -1,0 +1,26 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print slug/short variables
+        run: |
+          echo "Slug variables"
+          echo " - ${{ github.ref }}"    
+          echo " - ${{ github.head_ref }}"
+          echo " - ${{ github.base_ref }}"
+          echo " - $GITHUB_REF"
