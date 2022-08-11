@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# $1 = directory path to the thing we need to fix
+# $2 = the git hash we want it to run with
+
+cd $1
+find . -type f -exec chmod 0665 {} \;
+find . -type d -exec chmod 0775 {} \;
+find ./bin -type f -exec chmod 0775 {} \;
+chown -R root:root .
+chown root:dev . && chown root:dev etc/ && chown root:dev etc/config
+git fetch --all
+git co -- .
+git branch -d dev
+git branch -d master
+git co dev 
+git co master
+cd sharedperllib && git co -- . && cd ..
+cd sharednodelib && git co -- . && cd ..
+git submodule update
+git co $2
+git co -- .
+git submodule update --init
+./bin/stopDE
+echo "done!"

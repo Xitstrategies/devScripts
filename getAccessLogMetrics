@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "pass api port to run for"
+echo "Last Modified Date | number of hits"
+
+for i in $(ls -t /var/log/DataEngine/$1_access.log*); do
+    echo $(date -r $i "+%Y-%m-%d %H:%M:%S") $(zcat -f $i | wc -l | xargs printf "%'.f") "          $i"
+done
+
