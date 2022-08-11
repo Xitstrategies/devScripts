@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Get to the correct working directory
+cd /home/morgan.heimbeck/api/node_modules/tti/util/langtrans/
+
+echo 'use strict'; > index.js
+echo >> index.js
+
+# Note that the 'grep' in the following line prevents up from copying in any language other than
+# english. This is unacceptable for general use, but since the only current use of langTrans is
+# to display english messages to aid in debugging, this helps to reduce our memory footprint.
+for sourceFile in $(ls /var/spool/LangTrans/*.js | grep ENG)
+do
+    lang=${sourceFile##*/}
+    lang=${lang%.js}
+    echo Importing $lang
+    sed "s/LangTransTable/'use strict';\n\nmodule.exports/" < $sourceFile > $lang.js
+    echo "exports.$lang = require('./$lang.js');" >> index.js
+done

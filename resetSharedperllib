@@ -1,0 +1,12 @@
+#!/bin/bash
+
+dirPath=/spec/sharedperllib
+
+find $dirPath/. -type f -exec chmod 0665 {} \;
+#for directories
+find $dirPath/. -type d -exec chmod 0775 {} \;
+#for bin
+find $dirPath/bin -type f -exec chmod 0775 {} \;
+echo "update owner of files to dev:dev"
+chown -R laura:dev $dirPath/.
+

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+cd /var/spool/desktopBranches/master
+
+branches=$(git branch --no-color -r | sed 's/.*\///')
+cd ..
+
+for d in $branches
+do
+    echo "branch $d" 
+    if [ "$d" != "master" ]; then
+        cd "/var/spool/desktopBranches/$d/www"
+        val=$(ls js_app/dist/bundles/tt/*.js | sed 's/js_app\/dist\/bundles\/tt\///' | sed 's/\.js//')
+        sed -i "s/4f86c8d4957cca685e13c8856eddaf54fcc4c218/$val/g" branchManagement_production.html
+    fi
+done
+
