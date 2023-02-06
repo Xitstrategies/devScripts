@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# After checkout is run, we need to make sure the environment is ready for the next person to make changes their pull or checkout.
+# Permissions are painful
+
+schown -R dev:dev $PWD
+
