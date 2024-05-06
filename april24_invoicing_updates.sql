@@ -134,7 +134,7 @@ where GL_Header.screen = 'INVOICE'
 and GL_Header.invoice_date >= @invoice_date
 and GL_Header.status != 'Voided'
 and GL_Header.printed_date = '0000-00-00'
-and GL_Header.vendorcust_id in (select ttacct.uid from fp_TTI.ttacct where ttacct.billing_qualifier != 'JASF');
+and GL_Header.vendorcust_id in (select ttacct.uid from fp_TTI.ttacct where ttacct.billing_qualifier = 'JASF');
 
 SET @LYS_USD_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate where bp_title like 'Lyon USD%');
 SET @LYS_EUR_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate where bp_title like 'Lyon EUR%');
@@ -142,7 +142,7 @@ SET @BL3_USD_EN_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate wher
 SET @BL3_USD_FR_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate where bp_title like 'Banner%French');
 SET @TYO_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate where bp_title = 'Japan - YEN');
 
--- LYS USD :: dup
+-- LYS USD :: 11
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
 (select Profile_Location.profile_location_id, @LYS_USD_boilerplateId
 from fp_TTI.GL_Header
@@ -156,7 +156,7 @@ and GL_Header.office_code_id = (select uid from fp_TTI.ttacct where account_code
 and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
 group by 1,2);
 
--- LYS EUR
+-- LYS EUR :: 44
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
 (select Profile_Location.profile_location_id, @LYS_EUR_boilerplateId
 from fp_TTI.GL_Header
@@ -170,7 +170,7 @@ and GL_Header.office_code_id = (select uid from fp_TTI.ttacct where account_code
 and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
 group by 1,2);
 
--- BL3 English
+-- BL3 English :: 142
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
 (select Profile_Location.profile_location_id, @BL3_USD_EN_boilerplateId
 from fp_TTI.GL_Header
@@ -185,7 +185,7 @@ and GL_Header.vendorcust_id not in (select ttacct.uid from fp_TTI.ttacct where t
 and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
 group by 1,2);
 
--- BL3 French, AMC/Norbert
+-- BL3 French, AMC/Norbert :: --
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
 (select Profile_Location.profile_location_id, @BL3_USD_FR_boilerplateId
 from fp_TTI.Profile_Location
@@ -194,7 +194,7 @@ where Profile_Location.data_source_record in (16587, 17683)
 and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
 group by 1,2);
 
--- TYO
+-- TYO :: 32
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
 (select Profile_Location.profile_location_id, @TYO_boilerplateId
 from fp_TTI.GL_Header
