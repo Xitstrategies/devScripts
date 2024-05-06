@@ -17,7 +17,7 @@ use fp_TTI;
 
 SET @invoice_date = date(date_format(now(), '%Y-%m-01')) - interval 1 day;
 
--- USD to EUR
+-- USD to EUR :: 36
 update fp_TTI.GL_Header
 set special_comments = 'This statement is for services from 04/01/2024 through 04/30/2024.
 Due Date April 30, 2024
@@ -99,7 +99,7 @@ and GL_Header.printed_date = '0000-00-00'
 and EXISTS (select 1 from fp_TTI.Fgl where GL_Header.gl_header_id = Fgl.gl_header_id and Fgl.detail_currency != GL_Header.currency and (Fgl.detail_currency = 'JPY' or GL_Header.currency = 'JPY'))
 and GL_Header.office_code_id = (select uid from fp_TTI.ttacct where account_code = 'TTI' and account_suffix = 'TYO-HQ');
 
--- all line items match header
+-- all line items match header :: 170
 update fp_TTI.GL_Header
 set special_comments = 'This statement is for services from 04/01/2024 through 04/30/2024.
 Due Date April 30, 2024
@@ -113,7 +113,7 @@ and GL_Header.printed_date = '0000-00-00'
 and NOT EXISTS (select 1 from fp_TTI.Fgl where GL_Header.gl_header_id = Fgl.gl_header_id and Fgl.detail_currency != GL_Header.currency)
 and GL_Header.office_code_id in (select uid from fp_TTI.ttacct where (account_code = 'TTI' and account_suffix in ( 'LYS-HQ', 'BL3-HQ', 'TYO-HQ' )) or account_code = 'TIFFA');
 
--- AMC/Norbert
+-- AMC/Norbert :: 2
 update fp_TTI.GL_Header
 set special_comments = 'Cette declaration couvre nos prestations pour la pÈriode du 01/04/2024 au 30/04/2024.
  rËglement: 30 jours date de facture, soit ‡ rÈgler au Avril 30, 2024.
@@ -126,7 +126,7 @@ and GL_Header.status != 'Voided'
 and GL_Header.printed_date = '0000-00-00'
 and GL_Header.vendorcust_id in (16587, 17683);
 
--- JASF qualifier invoices
+-- JASF qualifier invoices :: 225
 update fp_TTI.GL_Header
 set special_comments = 'Invoice is available for payment approval via the JAS TOL
 Trade Tech netting code is: USTTI'
@@ -142,10 +142,10 @@ SET @BL3_USD_EN_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate wher
 SET @BL3_USD_FR_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate where bp_title like 'Banner%French');
 SET @TYO_boilerplateId = (select gl_bp_id from fp_TTI.GL_Boilerplate where bp_title = 'Japan - YEN');
 
--- LYS USD
+-- LYS USD :: dup
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
-select profile_location_id, @LYS_USD_boilerplateId
-from fp_TTI.Profile_Location, fp_TTI.GL_Header
+(select Profile_Location.profile_location_id, @LYS_USD_boilerplateId
+from fp_TTI.GL_Header
 left outer join fp_TTI.Profile_Location on GL_Header.vendorcust_id = Profile_Location.data_source_record
 left outer join fp_TTI.Profile_Location_Boilerplates on Profile_Location.profile_location_id = Profile_Location_Boilerplates.profile_location_id
 where GL_Header.vendorcust_id = Profile_Location.data_source_record -- data_source_record is the ttacct.uid
@@ -153,12 +153,13 @@ and GL_Header.screen = 'INVOICE'
 and GL_Header.invoice_date >= @invoice_date
 and GL_Header.currency = 'USD'
 and GL_Header.office_code_id = (select uid from fp_TTI.ttacct where account_code = 'TTI' and account_suffix = 'LYS-HQ')
-and Profile_Location_Boilerplates.profile_location_boilerplate_id is null; -- no boilerplates exist
+and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
+group by 1,2);
 
 -- LYS EUR
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
-select profile_location_id, @LYS_EUR_boilerplateId
-from fp_TTI.Profile_Location, fp_TTI.GL_Header
+(select Profile_Location.profile_location_id, @LYS_EUR_boilerplateId
+from fp_TTI.GL_Header
 left outer join fp_TTI.Profile_Location on GL_Header.vendorcust_id = Profile_Location.data_source_record
 left outer join fp_TTI.Profile_Location_Boilerplates on Profile_Location.profile_location_id = Profile_Location_Boilerplates.profile_location_id
 where GL_Header.vendorcust_id = Profile_Location.data_source_record -- data_source_record is the ttacct.uid
@@ -166,12 +167,13 @@ and GL_Header.screen = 'INVOICE'
 and GL_Header.invoice_date >= @invoice_date
 and GL_Header.currency = 'EUR'
 and GL_Header.office_code_id = (select uid from fp_TTI.ttacct where account_code = 'TTI' and account_suffix = 'LYS-HQ')
-and Profile_Location_Boilerplates.profile_location_boilerplate_id is null; -- no boilerplates exist
+and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
+group by 1,2);
 
 -- BL3 English
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
-select profile_location_id, @BL3_USD_EN_boilerplateId
-from fp_TTI.Profile_Location, fp_TTI.GL_Header
+(select Profile_Location.profile_location_id, @BL3_USD_EN_boilerplateId
+from fp_TTI.GL_Header
 left outer join fp_TTI.Profile_Location on GL_Header.vendorcust_id = Profile_Location.data_source_record
 left outer join fp_TTI.Profile_Location_Boilerplates on Profile_Location.profile_location_id = Profile_Location_Boilerplates.profile_location_id
 where GL_Header.vendorcust_id = Profile_Location.data_source_record -- data_source_record is the ttacct.uid
@@ -180,21 +182,22 @@ and GL_Header.invoice_date >= @invoice_date
 and GL_Header.currency = 'USD'
 and GL_Header.office_code_id = (select uid from fp_TTI.ttacct where account_code = 'TTI' and account_suffix = 'BL3-HQ')
 and GL_Header.vendorcust_id not in (select ttacct.uid from fp_TTI.ttacct where ttacct.billing_qualifier = 'JASF')
-and Profile_Location_Boilerplates.profile_location_boilerplate_id is null; -- no boilerplates exist
+and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
+group by 1,2);
 
 -- BL3 French, AMC/Norbert
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
-select profile_location_id, @BL3_USD_FR_boilerplateId
+(select Profile_Location.profile_location_id, @BL3_USD_FR_boilerplateId
 from fp_TTI.Profile_Location
-left outer join fp_TTI.Profile_Location on GL_Header.vendorcust_id = Profile_Location.data_source_record
 left outer join fp_TTI.Profile_Location_Boilerplates on Profile_Location.profile_location_id = Profile_Location_Boilerplates.profile_location_id
 where Profile_Location.data_source_record in (16587, 17683)
-and Profile_Location_Boilerplates.profile_location_boilerplate_id is null; -- no boilerplates exist
+and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
+group by 1,2);
 
 -- TYO
 insert into fp_TTI.Profile_Location_Boilerplates (profile_location_id, gl_bp_id)
-select profile_location_id, @TYO_boilerplateId
-from fp_TTI.Profile_Location, fp_TTI.GL_Header
+(select Profile_Location.profile_location_id, @TYO_boilerplateId
+from fp_TTI.GL_Header
 left outer join fp_TTI.Profile_Location on GL_Header.vendorcust_id = Profile_Location.data_source_record
 left outer join fp_TTI.Profile_Location_Boilerplates on Profile_Location.profile_location_id = Profile_Location_Boilerplates.profile_location_id
 where GL_Header.vendorcust_id = Profile_Location.data_source_record -- data_source_record is the ttacct.uid
@@ -202,5 +205,6 @@ and GL_Header.screen = 'INVOICE'
 and GL_Header.invoice_date >= @invoice_date
 and GL_Header.currency = 'JPY'
 and GL_Header.office_code_id = (select uid from fp_TTI.ttacct where account_code = 'TTI' and account_suffix = 'TYO-HQ')
-and Profile_Location_Boilerplates.profile_location_boilerplate_id is null; -- no boilerplates exist
+and Profile_Location_Boilerplates.profile_location_boilerplate_id is null
+group by 1,2);
 
