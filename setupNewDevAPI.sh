@@ -32,12 +32,15 @@ branch=${4:-dev}
 
 echo "cloning API to $dirPath"
 mkdir $dirPath
-git clone -b master ssh://git@stash.tradetech.net:7999/api/syrinx_api.git $dirPath
+git clone -b master git@github.com:Tradetech/syrinxapi.git $dirPath
 
 cd $dirPath
 git fetch --all
 git co $branch
 git submodule update --init
+
+echo "npm install commands"
+$dirPath/bin/npm install tti sharednodelib
 
 echo "copying config from /spec/Syrinx.ApiBranchC"
 cp /spec/Syrinx.ApiBranchC/etc/config $dirPath/etc/config
